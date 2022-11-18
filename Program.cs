@@ -8,33 +8,17 @@ var app = builder.Build();
 
 app.Run(async (context) =>
 {
-    context.Response.ContentType = "text/html; charset=utf-8";
-
-    if (context.Request.Path.Equals("/postuser"))
+    if (context.Request.Path == "/old")
     {
-        var form = context.Request.Form;
-        string name = form["name"];
-        string age = form["age"];
-        string[] languages = form["languages"];
-
-        string aioLangs = String.Join(", ", languages);
-
-        await context.Response.WriteAsync($"<div><p>Name: {name}</p>" +
-                                          $"<p>Age: {age}</p>" +
-                                          $"<div>Languages: {aioLangs}.</ul></div>");
-        return;
+        context.Response.Redirect("https://www.google.com/search?q=metanit.com");
     }
-
-    var path = $"views/{context.Request.Path}.html";
-
-    if (File.Exists(path))
+    else if (context.Request.Path == "/new")
     {
-        await context.Response.SendFileAsync(path);
+        await context.Response.WriteAsync("New Page");
     }
     else
     {
-        context.Response.StatusCode = 404;
-        await context.Response.WriteAsync("<h2>Not Found</h2>");
+        await context.Response.WriteAsync("Main Page");
     }
 });
 app.Run();
