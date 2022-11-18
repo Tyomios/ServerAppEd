@@ -54,14 +54,14 @@ app.Run(async (context) =>
 });
 app.Run();
 
-// получение всех пользователей
+// отправлеяет JSON всех пользователей.
 async Task GetAllPeople(HttpResponse response)
 {
     await response.WriteAsJsonAsync(users);
 }
 
 
-// получение одного пользователя по id
+// отправляет JSON одного пользователя по указанному id.
 async Task GetPerson(string? id, HttpResponse response)
 {
     Person? user = users.FirstOrDefault((u) => u.Id.Equals(id));
@@ -76,7 +76,7 @@ async Task GetPerson(string? id, HttpResponse response)
     await response.WriteAsJsonAsync(new { message = "Пользователь не найден" });
 }
 
-//удаление пользователя по Id.
+// удаляет из списка пользователей пользователя с указанным Id.
 async Task DeletePerson(string? id, HttpResponse response)
 {
     Person? user = users.FirstOrDefault((u) => u.Id.Equals(id));
@@ -116,7 +116,7 @@ async Task CreatePerson(HttpResponse response, HttpRequest request)
     }
 }
 
-// обновление данных пользователя.
+// обновляет данные пользователя.
 async Task UpdatePerson(HttpResponse response, HttpRequest request)
 {
     try
