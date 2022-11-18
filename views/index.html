@@ -2,15 +2,36 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>METANIT.COM</title>
-    <script src="scripts/cardsGetter.js"></script>
+    <title>Получение JSON.</title>
 </head>
 <body>
-    <h2>Первый заголовок</h2>
-    <script>
-        document.write("Первый текст");
+<h2>Заполните форму</h2>
+<div id="message"></div>
+<div>
+    <p>
+        Name: <br />
+        <input name="userName" id="userName" />
+    </p>
+    <p>
+        Age: <br />
+        <input name="userAge" id="userAge" type="number" />
+    </p>
+    <button id="sendBtn">Send</button>
+</div>
+<script>
+        document.getElementById("sendBtn").addEventListener("click", send);
+        async function send() {
+            const response = await fetch("/api/user", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: document.getElementById("userName").value,
+                    age: document.getElementById("userAge").value
+                })
+            });
+            const message = await response.json();
+            document.getElementById("message").innerText = message.text;
+        }
     </script>
-    <h2>Второй заголовок</h2>
-    <script src="scripts/message.js"></script>
 </body>
 </html>
