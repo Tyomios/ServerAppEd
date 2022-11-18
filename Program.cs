@@ -29,7 +29,7 @@ app.Run(async (context) =>
     {
         await requestPersonService.GetAllPeople(response, users);
     }
-    else if (Regex.IsMatch(path, expressionForGuid) 
+    else if (Regex.IsMatch(path, expressionForGuid)
              && request.Method.Equals("GET"))
     {
         string? id = path.Value?.Split("/")[3];
@@ -51,7 +51,7 @@ app.Run(async (context) =>
     else
     {
         response.ContentType = "text/html; charset=utf-8";
-        await response.SendFileAsync("html/index.html");
+        await response.SendFileAsync("views/index.html");
     }
 });
 app.Run();
