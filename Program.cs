@@ -1,3 +1,5 @@
+using System.Text.Json;
+using HelloApp.model;
 using Microsoft.Extensions.Primitives;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,20 +13,23 @@ app.Run(async (context) =>
     var response = context.Response;
     var request = context.Request;
 
-    if (request.Path == "/api/user")
+    if (context.Request.HasJsonContentType())
     {
-        var message = "Некорректные данные";  
-        try
+        if (request.Path == "/api/user")
         {
-            var person = await request.ReadFromJsonAsync<Person>();
-            if (person is not null)
+            var message = "Некорректные данные";
+
+            var jsonoptions = new JsonSerializerOptions();
+            jsonoptions.Converters.Add(new PersonConverter());
+
+            var person = await request.ReadFromJsonAsync<Person>(jsonoptions);
+            if (person != null)
             {
-                message = $"Name: {person.Name},   Age: {person.Age}";
+                message = $"Name: {person.Name}  Age: {person.Age}";
             }
+
+            await response.WriteAsJsonAsync(new { text = message });
         }
-        catch { }
-        // отправляем пользователю данные
-        await response.WriteAsJsonAsync(new { text = message });
     }
     else
     {
@@ -33,5 +38,3 @@ app.Run(async (context) =>
     }
 });
 app.Run();
-
-public record Person(string Name, int Age);
