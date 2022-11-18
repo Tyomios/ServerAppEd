@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using HelloApp.model;
 using Microsoft.Extensions.Primitives;
 
@@ -18,29 +19,37 @@ app.Run(async (context) =>
 {
     var response = context.Response;
     var request = context.Request;
+    var path = request.Path;
 
-    if (context.Request.HasJsonContentType())
+    var expressionForGuid = @"^/api/users/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$";
+
+    if (path.Equals("/api/users") && request.Method.Equals("GET"))
     {
-        if (request.Path == "/api/user")
-        {
-            var message = "Некорректные данные";
-
-            var jsonoptions = new JsonSerializerOptions();
-            jsonoptions.Converters.Add(new PersonConverter());
-
-            var person = await request.ReadFromJsonAsync<Person>(jsonoptions);
-            if (person != null)
-            {
-                message = $"Name: {person.Name}  Age: {person.Age}";
-            }
-
-            await response.WriteAsJsonAsync(new { text = message });
-        }
+        await GetAllPeople(response);
+    }
+    else if (Regex.IsMatch(path, expressionForGuid) 
+             && request.Method.Equals("GET"))
+    {
+        string? id = path.Value?.Split("/")[3];
+        await GetPerson(id, response);
+    }
+    else if (path.Equals("/api/users") && request.Method.Equals("POST"))
+    {
+        await CreatePerson(response, request);
+    }
+    else if (path.Equals("/api/users") && request.Method.Equals("PUT"))
+    {
+        await UpdatePerson(response, request);
+    }
+    else if (Regex.IsMatch(path, expressionForGuid) && request.Method.Equals("DELETE"))
+    {
+        string? id = path.Value?.Split("/")[3];
+        await DeletePerson(id, response);
     }
     else
     {
         response.ContentType = "text/html; charset=utf-8";
-        await response.SendFileAsync("views/index.html");
+        await response.SendFileAsync("html/index.html");
     }
 });
 app.Run();
