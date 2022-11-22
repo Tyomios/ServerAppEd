@@ -6,9 +6,9 @@ using Microsoft.Extensions.Primitives;
 
 var users = new List<Person>
 {
-    new() { Id = Guid.NewGuid().ToString(), Name = "Tom", Age = 37 },
-    new() { Id = Guid.NewGuid().ToString(), Name = "Bob", Age = 41 },
-    new() { Id = Guid.NewGuid().ToString(), Name = "Sam", Age = 24 }
+	new() { Id = Guid.NewGuid().ToString(), Name = "Tom", Age = 37 },
+	new() { Id = Guid.NewGuid().ToString(), Name = "Bob", Age = 41 },
+	new() { Id = Guid.NewGuid().ToString(), Name = "Sam", Age = 24 }
 };
 
 
@@ -18,40 +18,31 @@ var app = builder.Build();
 
 app.Run(async (context) =>
 {
-    var response = context.Response;
-    var request = context.Request;
-    var path = request.Path;
+	var response = context.Response;
+	var request = context.Request;
 
-    var requestPersonService = new RequestPersonService();
-    var expressionForGuid = @"^/api/users/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$";
+	response.ContentType = "text/html; charset=utf-8";
 
-    if (path.Equals("/api/users") && request.Method.Equals("GET"))
-    {
-        await requestPersonService.GetAllPeople(response, users);
-    }
-    else if (Regex.IsMatch(path, expressionForGuid)
-             && request.Method.Equals("GET"))
-    {
-        string? id = path.Value?.Split("/")[3];
-        await requestPersonService.GetPerson(id, response, users);
-    }
-    else if (path.Equals("/api/users") && request.Method.Equals("POST"))
-    {
-        await requestPersonService.CreatePerson(response, request, users);
-    }
-    else if (path.Equals("/api/users") && request.Method.Equals("PUT"))
-    {
-        await requestPersonService.UpdatePerson(response, request, users);
-    }
-    else if (Regex.IsMatch(path, expressionForGuid) && request.Method.Equals("DELETE"))
-    {
-        string? id = path.Value?.Split("/")[3];
-        await requestPersonService.DeletePerson(id, response, users);
-    }
-    else
-    {
-        response.ContentType = "text/html; charset=utf-8";
-        await response.SendFileAsync("views/index.html");
-    }
+	if (request.Path == "/upload" && request.Method == "POST")
+	{
+		IFormFileCollection files = request.Form.Files;
+		
+		var uploadPath = $"{Directory.GetCurrentDirectory()}/uploads";
+		Directory.CreateDirectory(uploadPath);
+
+		foreach (var file in files)
+		{
+            string fullPath = $"{uploadPath}/{file.FileName}";
+            using (var fileStream = new FileStream(fullPath, FileMode.Create))
+			{
+				await file.CopyToAsync(fileStream);
+			}
+		}
+		await response.WriteAsync("Файлы успешно загружены");
+	}
+	else
+	{
+		await response.SendFileAsync("views/index.html");
+	}
 });
 app.Run();
