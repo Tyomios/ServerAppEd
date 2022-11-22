@@ -13,7 +13,6 @@ public class RequestPersonService
         await response.WriteAsJsonAsync(users);
     }
 
-
     // отправляет JSON одного пользователя по указанному id.
     public async Task GetPerson(string? id, HttpResponse response, List<Person> users)
     {
